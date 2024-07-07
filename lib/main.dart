@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -30,11 +32,42 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String jankenText = '👊';
+  Hand? myHand;
+  Hand? computerHand;
+  Result? result;
 
-  void _chooseJankenText() {
+
+  List<Hand> jankenList = [Hand.rock, Hand.scissors, Hand.paper];
+
+  void chooseComputerText() {
+    final random = Random();
+    final randomNumber = random.nextInt(3);
+    final hand = Hand.values[randomNumber];
     setState(() {
-      jankenText = '✋';
+      computerHand = hand;
+    });
+    decideResult();
+  }
+
+  void decideResult() {
+    if (myHand == null || computerHand == null) {
+      return;
+    }
+    final Result result;
+
+    if (myHand == computerHand) {
+      result = Result.draw;
+    } else if (myHand == Hand.rock && computerHand == Hand.scissors) {
+      result = Result.win;
+    } else if (myHand == Hand.scissors && computerHand == Hand.paper) {
+      result = Result.win;
+    } else if (myHand == Hand.paper && computerHand == Hand.rock) {
+      result = Result.win;
+    } else {
+      result = Result.lose;
+    }
+    setState(() {
+      this.result = result;
     });
   }
 
@@ -54,8 +87,15 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(fontSize: 30),
             ),
             Text(
-              '✌️',
+              computerHand?.text ?? '?',
               style: TextStyle(fontSize: 100),
+            ),
+            SizedBox(
+              height: 80,
+            ),
+            Text(
+              result?.text ?? '?',
+              style: TextStyle(fontSize: 30),
             ),
             SizedBox(
               height: 80,
@@ -65,21 +105,93 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(fontSize: 30),
             ),
             Text(
-              jankenText,
-              style: TextStyle(fontSize: 100),
+              myHand?.text ?? '?',
+              style: TextStyle(fontSize: 200),
             ),
           ],
         ),
       ),
       floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: _chooseJankenText,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
+            onPressed: () {
+              setState(() {
+                myHand = Hand.rock;
+              });
+              chooseComputerText();
+            },
+            child: const Text(
+              '👊',
+              style: TextStyle(fontSize: 30),
+            ),
+          ),
+          const SizedBox(
+            width: 16,
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                myHand = Hand.scissors;
+              });
+              chooseComputerText();
+            },
+            child: const Text(
+              '✌️',
+              style: TextStyle(fontSize: 30),
+            ),
+          ),
+          const SizedBox(
+            width: 16,
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                myHand = Hand.paper;
+              });
+              chooseComputerText();
+            },
+            child: const Text(
+              '✋',
+              style: TextStyle(fontSize: 30),
+            ),
           ),
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+enum Hand {
+  rock,
+  scissors,
+  paper;
+
+  String get text {
+    switch (this) {
+      case Hand.rock:
+        return '👊';
+      case Hand.scissors:
+        return '✌️';
+      case Hand.paper:
+        return '✋';
+    }
+  }
+}
+
+enum Result {
+  win,
+  lose,
+  draw;
+
+  String get text {
+    switch (this) {
+      case Result.win:
+        return '勝ち';
+      case Result.lose:
+        return '負け';
+      case Result.draw:
+        return 'あいこ';
+    }
   }
 }
